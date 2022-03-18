@@ -44,8 +44,8 @@ dF1 = pd.read_excel('N_Type_GaS_Hall_Resistance.xlsx')
 t1 = 3e-6
 
 mfs = np.array(dF1['Magnetic Field Strength (mT)']) / 1000
-hall_res = np.array(dF1['Hall_Res (ohm)'])
-mfs_err = np.array(dF1['MFS Err (mT)']) / 1000
+hall_res = np.array(dF1['Hall_Res (ohm)']) *-1
+mfs_err = np.array(dF1['MFS Err (mT)']) / 1000 
 hall_res_err = np.array(dF1['Hall_Res_err (ohm)'])
 
 par1, cov1 = curve_fit(linear, mfs, hall_res, sigma = hall_res_err, absolute_sigma = True)
@@ -67,7 +67,7 @@ print("Carrier Density:", car_den, car_den_err)
 
 plt.errorbar(mfs, hall_res, yerr = hall_res_err, xerr = mfs_err, capsize = 2, fmt = 'o', label = 'N-Type GaAs Data')
 plt.plot(mfs, fit1, label = "Fit")
-text_x = -0.04
+text_x = -0.3
 text_y = -1
 plt.text(text_x, text_y, "Gradient: {} $\pm$ {}".format(grad, grad_err), fontsize = 12)
 plt.text(text_x, text_y - 0.3, "Intercept: {} $\pm$ {}".format(interp, interp_err), fontsize = 12)
@@ -79,6 +79,7 @@ plt.ylabel("Hall Resistance ($\Omega$)")
 plt.grid(which = 'minor', alpha = 0.2)
 plt.grid(which = 'major')
 plt.legend()
+plt.savefig('N_type_GaAs_HallPlot')
 plt.show()
 
 
@@ -91,7 +92,7 @@ dF2 = pd.read_excel('P_Type_GaS_Hall_Resistance.xlsx')
 t2 = 2.7e-6
 
 mfs = np.array(dF2['Magnetic Field Strength (mT)']) / 1000
-hall_res_P = np.array(dF2['Hall_Res (ohm)'])
+hall_res_P = np.array(dF2['Hall_Res (ohm)'])*-1
 mfs_err_P = np.array(dF2['MFS Err (mT)']) / 1000
 hall_res_err_P = np.array(dF2['Hall_Res_err (ohm)'])
 
@@ -115,9 +116,9 @@ print("Carrier Density:", carrier_density_P, car_den_err_P)
 plt.errorbar(mfs, hall_res_P, yerr = hall_res_err_P, xerr = mfs_err_P, capsize = 2, fmt = 'o', label = 'P-Type GaAs Data')
 plt.plot(mfs, fit2, label = "Fit")
 text_x = -0.04
-text_y = -1
+text_y = -0.3
 plt.text(text_x, text_y, "Gradient: {} $\pm$ {}".format(grad_P, grad_err_P), fontsize = 12)
-plt.text(text_x, text_y - 0.3, "Intercept: {} $\pm$ {}".format(interp_P, interp_err_P), fontsize = 12)
+plt.text(text_x, text_y - 0.1, "Intercept: {} $\pm$ {}".format(interp_P, interp_err_P), fontsize = 12)
 # plt.text(0.1, -1, "Carrier Density: {}".format(carrier_density), fontsize = 12)
 
 plt.minorticks_on()
@@ -126,6 +127,7 @@ plt.ylabel("Hall Resistance ($\Omega$)")
 plt.grid(which = 'minor', alpha = 0.2)
 plt.grid(which = 'major')
 plt.legend()
+plt.savefig('P_type_GaAs_HallPlot')
 plt.show()
 
 #%%
@@ -172,6 +174,7 @@ plt.ylabel("Hall Resistance ($\Omega$)")
 plt.grid(which = 'minor', alpha = 0.2)
 plt.grid(which = 'major')
 plt.legend()
+plt.savefig('InSb_HallPlot')
 plt.show()
 #%%
 """
