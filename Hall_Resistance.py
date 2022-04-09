@@ -79,7 +79,7 @@ plt.ylabel("Hall Resistance ($\Omega$)")
 plt.grid(which = 'minor', alpha = 0.2)
 plt.grid(which = 'major')
 plt.legend()
-plt.savefig('N_type_GaAs_HallPlot')
+plt.savefig('N_type_GaAs_HallPlot',dpi = 300, bbox_inches="tight")
 plt.show()
 
 
@@ -127,7 +127,7 @@ plt.ylabel("Hall Resistance ($\Omega$)")
 plt.grid(which = 'minor', alpha = 0.2)
 plt.grid(which = 'major')
 plt.legend()
-plt.savefig('P_type_GaAs_HallPlot')
+plt.savefig('P_type_GaAs_HallPlot',dpi = 300, bbox_inches="tight")
 plt.show()
 
 #%%
@@ -174,8 +174,9 @@ plt.ylabel("Hall Resistance ($\Omega$)")
 plt.grid(which = 'minor', alpha = 0.2)
 plt.grid(which = 'major')
 plt.legend()
-plt.savefig('InSb_HallPlot')
+plt.savefig('InSb_HallPlot', dpi = 300, bbox_inches="tight")
 plt.show()
+
 #%%
 """
 Calculating Mobilities
@@ -246,7 +247,7 @@ def cubic(x,a,b,c,d):
     return a*x**3 + b*x**2 + c*x + d
     
 
-def cubic_fit(x,y, y_err):
+def cubic_fit(x,y, y_err, color_line, color_dot, save = False):
     guess = [0,0,0,0]
     par, cov = curve_fit(cubic, x, y, guess, absolute_sigma = True)
     fit = cubic(x, par[0], par[1], par[2], par[3])
@@ -255,16 +256,56 @@ def cubic_fit(x,y, y_err):
     y_1 = cubic(x_1, par[0], par[1], par[2], par[3])
     print(par)
     
-    plt.plot(x_1,y_1, c = 'black')
-    plt.errorbar(x, y, yerr = y_err, fmt = 'o', label = 'Adjusted InSb Residuals',marker = '.', markersize = 4, c = 'red', capsize = 2)
+    plt.plot(x_1,y_1, c = color_line)
+    plt.errorbar(x, y, yerr = y_err, fmt = 'o', label = 'InSb Temperature Dependence',marker = '.', markersize = 4, c = color_dot, capsize = 2)
     plt.minorticks_on()
-    plt.xlabel("Magnetic Field Strength (T)")
-    plt.ylabel("Hall Resistance ($\Omega$)")
+    
+    # plt.xlabel("Magnetic Field Strength (T)")
+    # plt.ylabel("Hall Resistance ($\Omega$)")
+    plt.xlabel("Temperature ($^{o}$C)")
+    plt.ylabel("Resistance ($\Omega$)")
+    
     plt.grid(which = 'minor', alpha = 0.2)
     plt.grid(which = 'major')
     plt.legend()
+    
+    if save:
+        plt.savefig('mag_res.png',dpi = 300, bbox_inches="tight") 
+    
     plt.show()
     
+#%%
+"""
+Temperature dependence 
+"""
+
+dF_temp = pd.read_excel('Indium_Temperature.xlsx')
+
+temp = np.array(dF_temp['Temperature (C)'])
+resistance = np.array(dF_temp['Voltage (mV)'])
+err = np.ones(len(temp)) * hall_res_err_InSb[0]
+
+plt.errorbar(temp, resistance, yerr = err, fmt = 'o', label = '', marker = '.', markersize = 4, c = 'red', capsize = 2)
+
+plt.minorticks_on()
+plt.xlabel("Temperature ($^{o}$C)")
+plt.ylabel("Hall Resistance ($\Omega$)")
+plt.grid(which = 'minor', alpha = 0.2)
+plt.grid(which = 'major')
+plt.legend()
+plt.show()
+
+#%%
+
+x = np.array([1,1.000000001])
+y = np.array([0,1000])
+
+plt.plot(x*23.4, y, linestyle = "--", c = 'black')
+plt.plot(x*24.4, y, linestyle = "--", c = 'black')
+plt.xlim([21.8, 26.4])
+plt.ylim([27.35, 29.9])
+
+plt.savefig('temp_dependence.png')
 
 
 
