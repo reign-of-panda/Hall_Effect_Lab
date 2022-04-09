@@ -141,7 +141,7 @@ t3 = 1e-6
 mfs = np.array(dF3['Magnetic Field Strength (mT)']) / 1000
 hall_res_InSb = np.array(dF3['Hall_Res (ohm)'])
 mfs_err_InSb = np.array(dF3['MFS Err (mT)']) / 1000
-hall_res_err_InSb = np.array(dF3['Hall_Res_err (ohm)'])
+hall_res_err_InSb = np.array(dF3['Hall_Res_err (ohm)']) * 100
 
 par3, cov3 = curve_fit(linear, mfs, hall_res_InSb, sigma = hall_res_err_InSb, absolute_sigma = True)
 fit3 = linear(mfs, *par3)
@@ -183,5 +183,99 @@ Calculating Mobilities
 print('Mobility N-type (cm^2 V^-1 s^-1):', mobility(car_den, resistivity[0])*10000)
 print('Mobility P-type (cm^2 V^-1 s^-1):', mobility(carrier_density_P, resistivity[1])*10000)
 print('Mobility InSb (cm^2 V^-1 s^-1):', mobility(carrier_density_InSb, resistivity[2])*10000)
+
+
+#%%
+
+def res(mfs, hall_res, y_err, fit):
+    hres = 0
+    hres = hall_res - fit
+    
+    plt.errorbar(mfs, hres, yerr = y_err, fmt = 'o', label = 'InSb Residuals', marker = '.', markersize = 4, c = 'black', capsize = 2)
+    
+    plt.minorticks_on()
+    plt.xlabel("Magnetic Field Strength (T)")
+    plt.ylabel("Hall Resistance Residuals ($\Omega$)")
+    plt.grid(which = 'minor', alpha = 0.2)
+    plt.grid(which = 'major')
+    plt.legend()
+    plt.savefig('InSb_HallPlot')
+    plt.show()
+    return hres
+
+
+#%%
+
+par4, cov4 = curve_fit(linear, mfs[4:9], hall_res_InSb[4:9], sigma = hall_res_err_InSb[4:9], absolute_sigma = True)
+fit4 = linear(mfs, *par4)
+
+
+grad_InSb = truncate(par4[0], 3)
+grad_err_InSb = truncate(cov4[0][0] ** 0.5, 5)
+interp_InSb = truncate(par4[1], 3)
+interp_err_InSb = truncate(cov4[1][1] ** 0.5, 5)
+
+rho_InSb, rho_err_InSb = carrier_density(par4[0], grad_err_InSb, t3)
+
+carrier_density_InSb = truncate(rho_InSb, 3)
+car_den_err_InSb = truncate(rho_err_InSb, 3)
+
+print("Gradient:", grad_InSb, grad_err_InSb)
+print("Intercept:", interp_InSb, interp_err_InSb)
+print("Carrier Density:", carrier_density_InSb, car_den_err_InSb)
+
+plt.errorbar(mfs, hall_res_InSb, yerr = hall_res_err_InSb, xerr = mfs_err_InSb, capsize = 2, fmt = 'o', label = 'InSb Data')
+plt.plot(mfs, fit4, label = "Fit")
+text_x = -0.3
+text_y = -50
+plt.text(text_x, text_y, "Gradient: {} $\pm$ {}".format(grad_InSb, grad_err_InSb), fontsize = 12)
+plt.text(text_x, text_y - 15, "Intercept: {} $\pm$ {}".format(interp_InSb, interp_err_InSb), fontsize = 12)
+# plt.text(0.1, -1, "Carrier Density: {}".format(carrier_density), fontsize = 12)
+
+plt.minorticks_on()
+plt.xlabel("Magnetic Field Strength (T)")
+plt.ylabel("Hall Resistance ($\Omega$)")
+plt.grid(which = 'minor', alpha = 0.2)
+plt.grid(which = 'major')
+plt.legend()
+plt.show()
+
+#%%
+
+def cubic(x,a,b,c,d):
+    return a*x**3 + b*x**2 + c*x + d
+    
+
+def cubic_fit(x,y, y_err):
+    guess = [0,0,0,0]
+    par, cov = curve_fit(cubic, x, y, guess, absolute_sigma = True)
+    fit = cubic(x, par[0], par[1], par[2], par[3])
+    
+    x_1 = np.linspace(min(x), max(x), 1000)
+    y_1 = cubic(x_1, par[0], par[1], par[2], par[3])
+    print(par)
+    
+    plt.plot(x_1,y_1, c = 'black')
+    plt.errorbar(x, y, yerr = y_err, fmt = 'o', label = 'Adjusted InSb Residuals',marker = '.', markersize = 4, c = 'red', capsize = 2)
+    plt.minorticks_on()
+    plt.xlabel("Magnetic Field Strength (T)")
+    plt.ylabel("Hall Resistance ($\Omega$)")
+    plt.grid(which = 'minor', alpha = 0.2)
+    plt.grid(which = 'major')
+    plt.legend()
+    plt.show()
+    
+
+
+
+
+
+
+
+
+
+
+
+
 
 
